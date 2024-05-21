@@ -36,4 +36,17 @@ describe("POST /orders/:id/ship", function () {
     expect(resp.body).toEqual({"error": expect.any(Object)});
     expect(resp.statusCode).toEqual(400)
   });
+
+  test("invalid with additional properties", async function () {
+    const resp = await request(app).post("/orders/123/ship").send({
+      productId: 1000,
+      name: "Test Tester",
+      addr: "100 Test St",
+      zip: "12345-6789",
+      unexpectedAdditionalProperty: "oh nooesss!!!"
+    });
+
+    expect(resp.body).toEqual({"error": expect.any(Object)});
+    expect(resp.statusCode).toEqual(400)
+  });
 });
