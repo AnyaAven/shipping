@@ -25,4 +25,15 @@ describe("POST /orders/:id/ship", function () {
       .send();
     expect(resp.statusCode).toEqual(400);
   });
+
+  test("throws error if required fields aren't sent", async function () {
+    const resp = await request(app).post("/orders/123/ship").send({
+      productId: 1000,
+      name: "Test Tester",
+      addr: "100 Test St",
+    });
+
+    expect(resp.body).toEqual({"error": expect.any(Object)});
+    expect(resp.statusCode).toEqual(400)
+  });
 });
