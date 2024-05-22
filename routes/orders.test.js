@@ -64,4 +64,18 @@ describe("POST /orders/:id/ship", function () {
       `"unexpectedAdditionalProperty"`])
     expect(resp.statusCode).toEqual(400);
   });
+
+  test("invalid zipcode", async function () {
+    const resp = await request(app).post("/orders/123/ship").send({
+      productId: 1000,
+      name: "Test Tester",
+      addr: "100 Test St",
+      zip: "123-333",
+    });
+
+    expect(resp.body.error.message[0])
+      .toContain("instance.zip does not match pattern")
+
+    expect(resp.statusCode).toEqual(400);
+  });
 });
