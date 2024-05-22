@@ -1,10 +1,23 @@
-import { describe, test, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, test, expect, beforeAll, afterAll, vi }
+  from "vitest";
 import * as shipping from "../shipItApi.js";
 import request from "supertest";
 import app from "../app.js";
 
+beforeAll(function () {
+  // observe calls & make it possible to mock
+  vi.spyOn(shipping, "shipViaShipIt");
+});
+
+afterAll(function () {
+  vi.restoreAllMocks();
+});
+
 describe("POST /orders/:id/ship", function () {
   test("valid", async function () {
+    //Forces tracking number to be 123
+    shipping.shipViaShipIt.mockReturnValue(123);
+
     const resp = await request(app).post("/orders/123/ship").send({
       productId: 1000,
       name: "Test Tester",
@@ -14,7 +27,7 @@ describe("POST /orders/:id/ship", function () {
 
     expect(resp.body).toEqual({
       cost: expect.any(String),
-      trackingId: expect.any(Number),
+      trackingId: 123,
       orderId: 123,
     });
   });
@@ -33,8 +46,8 @@ describe("POST /orders/:id/ship", function () {
       addr: "100 Test St",
     });
 
-    expect(resp.body).toEqual({"error": expect.any(Object)});
-    expect(resp.statusCode).toEqual(400)
+    expect(resp.body).toEqual({ "error": expect.any(Object) });
+    expect(resp.statusCode).toEqual(400);
   });
 
   test("invalid with additional properties", async function () {
@@ -46,7 +59,9 @@ describe("POST /orders/:id/ship", function () {
       unexpectedAdditionalProperty: "oh nooesss!!!"
     });
 
-    expect(resp.body).toEqual({"error": expect.any(Object)});
-    expect(resp.statusCode).toEqual(400)
+    expect(resp.body.error.message).toEqual(
+      [`instance is not allowed to have the additional property ` +
+      `"unexpectedAdditionalProperty"`])
+    expect(resp.statusCode).toEqual(400);
   });
 });
