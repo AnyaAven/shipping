@@ -1,6 +1,6 @@
 import { test, beforeAll, afterAll, expect, vi } from "vitest";
 import { getCost } from "./costs.js";
-import * as discount from "./discounts.js"
+import * as discount from "./discounts.js";
 
 
 beforeAll(function () {
